@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Aura Music Player</title>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/x-icon" href="favicon.ico" />
+
+  <script>
+    (function() {
+      let env = {};
+      try {
+        if (globalThis.process && typeof globalThis.process.env === 'object' && globalThis.process.env !== null) {
+          env = { ...globalThis.process.env };
+        }
+      } catch (e) { }
+
+      if (typeof globalThis.process !== 'object' || globalThis.process === null) {
+        globalThis.process = {};
+      }
+      globalThis.process.env = env;
+
+      let finalSanitizedApiKey = '';
+      const originalApiKey = globalThis.process.env.API_KEY;
+
+      if (typeof originalApiKey === 'string' && originalApiKey.trim().toLowerCase() !== 'undefined' && originalApiKey.trim() !== '' && originalApiKey.trim().length >= 30) {
+        finalSanitizedApiKey = originalApiKey.trim();
+      }
+
+      globalThis.process.env.API_KEY = finalSanitizedApiKey;
+      globalThis.AURA_GEMINI_API_KEY = finalSanitizedApiKey;
+    })();
+  </script>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
+      "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
+      "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
+      "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
+      "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
+      "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
+      "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^21.0.2?external=rxjs",
+      "@angular/core": "https://next.esm.sh/@angular/core@^21.0.2?external=rxjs",
+      "@angular/common": "https://next.esm.sh/@angular/common@^21.0.2?external=rxjs",
+      "@angular/forms": "https://esm.sh/@angular/forms@^21.0.6"
+    }
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body { 
+      font-family: 'Space Grotesk', sans-serif;
+      background-color: #050505;
+      /* Adjusted CSS variables for Tailwind compatibility */
+      --color-green-400: #4ade80;
+      --color-green-500: #22c55e;
+      --color-green-900: #14532d;
+      
+      --color-blue-400: #60a5fa;
+      --color-blue-500: #3b82f6;
+      --color-blue-900: #1e3a8a;
+      
+      --color-red-400: #f87171;
+      --color-red-500: #ef4444;
+      --color-red-900: #7f1d1d;
+      
+      --color-purple-400: #c084fc;
+      --color-purple-500: #a855f7;
+      --color-purple-900: #581c87;
+    }
+    
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    
+    /* Animations */
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slide-up { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    
+    .animate-fade-in { animation: fade-in 0.3s ease-out; }
+    .animate-slide-up { animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+  </style>
+</head>
+<body class="bg-black text-white antialiased overflow-hidden">
+  <app-root></app-root>
+</body>
+</html>

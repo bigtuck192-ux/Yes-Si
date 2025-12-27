@@ -1,0 +1,16 @@
+<div class="fixed inset-0 bg-black/60 z-40" (click)="onClose()"></div>
+<div class="fixed inset-x-4 bottom-4 p-4 bg-black border z-50" [class]="'border-' + theme().primary + '-400/50'">
+  <div class="flex justify-between items-center mb-4">
+    <h2>[[ Equalizer & Enhancements ]]</h2>
+    <button (click)="onClose()">[X]</button>
+  </div>
+  <div class="flex justify-around items-end h-48 p-4">
+    @for (band of eqSettings(); track $index) {
+      <input type="range" min="0" max="100" [value]="band.value" (input)="onEqBandChange($index, $event)" class="slider vertical-slider">
+    }
+  </div>
+  <div>
+    <label><input type="checkbox" [checked]="enhancements().bassBoost" (change)="onEnhancementToggle('bassBoost')"> Bass Boost</label>
+    <label><input type="checkbox" [checked]="enhancements().surroundSound" (change)="onEnhancementToggle('surroundSound')"> Surround Sound</label>
+  </div>
+</div>

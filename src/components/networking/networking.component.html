@@ -1,0 +1,31 @@
+<div class="w-full p-4 flex flex-col gap-4" [class]="'text-' + theme().neutral + '-200'" [class]="'border border-' + theme().blue + '-500/30'">
+  <h2 class="text-center text-lg" [class]="'text-' + theme().blue + '-400'">[ AURA NETWORKING HUB ]</h2>
+  
+  <div class="p-4 flex flex-wrap gap-4 border" [class]="'border-' + theme().blue + '-500/20'">
+    <input type="text" [(ngModel)]="searchLocation" placeholder="Search Location..." class="p-2 bg-black border flex-grow">
+    <select [(ngModel)]="collaborationFilter" class="p-2 bg-black border">
+      <option value="">All Collabs</option>
+      <option>Vocalist</option> <option>Producer</option> <option>Rapper</option>
+    </select>
+    <button (click)="searchArtists()" class="p-2 border" [class]="'border-' + theme().blue + '-500/50'" [disabled]="isLoading()">
+      {{ isLoading() ? '[ SEARCHING... ]' : '[ SEARCH ]' }}
+    </button>
+    <button (click)="clearSearch()" class="p-2 border" [class]="'border-' + theme().blue + '-500/50'">[ CLEAR ]</button>
+  </div>
+  
+  <div class="flex-grow overflow-y-auto pr-2 h-96">
+    @if (errorMessage()) {
+      <p class="text-center p-4">{{ errorMessage() }}</p>
+    }
+    @for (artist of displayedArtists(); track artist.id) {
+      <div class="flex items-center gap-4 p-2 border-b cursor-pointer hover:bg-blue-900/50" [class]="'border-' + theme().blue + '-500/20'" (click)="viewArtistDetail(artist)">
+        <img [src]="artist.imageUrl" class="w-16 h-16 rounded-full border-2" [class]="'border-' + theme().blue + '-500/50'">
+        <div class="flex-grow">
+          <h3 class="text-md font-bold">{{ artist.name }}</h3>
+          <p class="text-sm opacity-80">{{ artist.genre }} | {{ artist.location }}</p>
+        </div>
+        <span class="text-xs opacity-60">[ VIEW PROFILE ]</span>
+      </div>
+    }
+  </div>
+</div>

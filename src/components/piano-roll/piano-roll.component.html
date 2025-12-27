@@ -1,0 +1,27 @@
+<div class="w-full p-4 flex flex-col gap-4" [class]="'border border-' + theme().primary + '-500/30'">
+  <h2 class="text-center text-lg" [class]="'text-' + theme().primary + '-400'">[ AURA PIANO ROLL ]</h2>
+  <div class="flex justify-between items-center p-2">
+    <button (click)="togglePlay()">{{ isPlaying() ? '[ STOP ]' : '[ PLAY ]' }}</button>
+    <button (click)="resetSequence()">[ RESET ]</button>
+    <div>
+      <label>BPM: {{ bpm() }}</label>
+      <input type="range" min="60" max="240" [value]="bpm()" (input)="onBpmChange($event)">
+    </div>
+  </div>
+  <div class="w-full overflow-x-auto">
+    <div class="grid" [style.grid-template-columns]="'80px repeat(16, 1fr)'">
+      <div class="text-xs text-right pr-2"></div>
+      @for(i of [].constructor(16); track i) { <div class="text-xs text-center">{{ i + 1 }}</div> }
+
+      @for(note of allNotes; track note.midi) {
+        <div class="text-xs text-right pr-2">{{ getNoteDisplay(note) }}</div>
+        @for(step of sequence().get(note.midi) || []; track $index) {
+          <div (click)="toggleNote(note.midi, $index)" class="w-6 h-6 border"
+            [class.bg-green-500]="step"
+            [class.bg-yellow-500]="currentStep() === $index">
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

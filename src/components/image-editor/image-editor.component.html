@@ -1,0 +1,93 @@
+<div class="w-full h-full flex flex-col lg:flex-row gap-6 p-4">
+    <!-- Controls Panel -->
+    <div class="w-full lg:w-1/3 flex flex-col gap-6 p-6 rounded-2xl border border-white/10 bg-black/40 backdrop-blur-md shadow-xl"
+         [class]="'border-' + theme().purple + '-500/20'">
+         
+         <div class="space-y-2">
+             <h2 class="text-xl font-bold tracking-tight text-white"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-purple-400"></i>Image Lab</h2>
+             <p class="text-xs text-gray-400">Create or edit visual assets for your music.</p>
+         </div>
+
+         <!-- Model Selector -->
+         <div class="bg-white/5 p-1 rounded-lg flex">
+             <button (click)="useProModel.set(false)" class="flex-1 py-2 text-xs font-bold rounded transition-all"
+                     [class]="!useProModel() ? 'bg-purple-600 text-white shadow' : 'text-gray-400 hover:text-white'">
+                 <i class="fa-solid fa-bolt mr-1"></i> FLASH
+             </button>
+             <button (click)="useProModel.set(true)" class="flex-1 py-2 text-xs font-bold rounded transition-all"
+                     [class]="useProModel() ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow' : 'text-gray-400 hover:text-white'">
+                 <i class="fa-solid fa-star mr-1"></i> PRO 3.0
+             </button>
+         </div>
+
+         <!-- Upload Area -->
+         <div (click)="fileInput.click()" class="border-2 border-dashed rounded-xl h-32 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-white/5 group relative overflow-hidden"
+              [class]="'border-' + theme().purple + '-500/30 hover:border-' + theme().purple + '-500/60'">
+            @if (originalImageUrl()) {
+                <img [src]="originalImageUrl()" class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-30">
+                <div class="relative z-10 bg-black/50 px-3 py-1 rounded text-xs">Change Image</div>
+            } @else {
+                <i class="fa-solid fa-cloud-arrow-up text-2xl mb-2 text-gray-500 group-hover:text-purple-400 transition-colors"></i>
+                <span class="text-xs text-gray-500">Upload Reference</span>
+            }
+         </div>
+         <input type="file" #fileInput (change)="handleImageUpload($event)" accept="image/*" class="hidden">
+
+         <!-- Prompt -->
+         <div class="space-y-2">
+            <label class="text-xs font-bold text-gray-400">CREATIVE PROMPT</label>
+            <textarea [(ngModel)]="editPrompt" rows="4" class="w-full bg-black/50 border border-white/10 rounded-xl p-3 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-purple-500/50 transition-all resize-none" placeholder="Describe your vision..."></textarea>
+         </div>
+
+         <!-- Aspect Ratio -->
+         <div class="space-y-2">
+             <label class="text-xs font-bold text-gray-400">ASPECT RATIO</label>
+             <div class="grid grid-cols-4 gap-2">
+                 @for (ratio of ['1:1', '16:9', '9:16', '4:3']; track ratio) {
+                     <button (click)="aspectRatio.set(ratio as any)" class="py-1 border rounded text-[10px] transition-all"
+                             [class]="aspectRatio() === ratio ? 'bg-purple-500/20 border-purple-500 text-purple-300' : 'border-white/10 text-gray-500 hover:border-white/30'">
+                         {{ ratio }}
+                     </button>
+                 }
+             </div>
+         </div>
+
+         <!-- Actions -->
+         <div class="flex gap-2 mt-auto">
+             <button (click)="generateImage()" [disabled]="isLoading() || !editPrompt()" 
+                     class="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold shadow-lg shadow-purple-900/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                 {{ isLoading() ? 'CREATING...' : 'GENERATE' }}
+             </button>
+             <button (click)="editImage()" [disabled]="isLoading() || !originalImageUrl() || !editPrompt()" 
+                     class="flex-1 py-3 border border-white/10 hover:bg-white/10 text-white rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                 EDIT
+             </button>
+         </div>
+         @if (errorMessage()) { <p class="text-xs text-red-400 text-center">{{ errorMessage() }}</p> }
+    </div>
+
+    <!-- Canvas / Result -->
+    <div class="flex-1 bg-black/20 rounded-2xl border border-white/5 flex items-center justify-center relative overflow-hidden backdrop-blur-sm">
+        @if (isLoading()) {
+            <div class="flex flex-col items-center">
+                <div class="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin" [class]="'border-' + theme().purple + '-500'"></div>
+                <p class="mt-4 text-sm tracking-widest animate-pulse text-purple-300">RENDERING PIXELS...</p>
+            </div>
+        } @else if (generatedImageUrls().length > 0) {
+            <img [src]="generatedImageUrls()[0]" class="max-w-full max-h-full shadow-2xl rounded-lg">
+            
+            <div class="absolute bottom-6 flex gap-4 opacity-0 hover:opacity-100 transition-opacity p-4 bg-black/60 rounded-xl backdrop-blur-md">
+                <button (click)="useAsAlbumArt()" class="text-xs text-white hover:text-purple-300"><i class="fa-solid fa-compact-disc mr-2"></i>Use as Album Art</button>
+                <div class="w-px h-4 bg-white/20"></div>
+                <button (click)="requestImageAnalysis()" class="text-xs text-white hover:text-blue-300"><i class="fa-solid fa-eye mr-2"></i>Analyze</button>
+                <div class="w-px h-4 bg-white/20"></div>
+                <a [href]="generatedImageUrls()[0]" download="aura-art.png" class="text-xs text-white hover:text-green-300"><i class="fa-solid fa-download mr-2"></i>Download</a>
+            </div>
+        } @else {
+            <div class="text-center text-gray-600">
+                <i class="fa-solid fa-image text-6xl mb-4 opacity-20"></i>
+                <p class="text-sm">Your masterpiece awaits</p>
+            </div>
+        }
+    </div>
+</div>

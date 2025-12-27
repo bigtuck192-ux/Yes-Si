@@ -1,0 +1,41 @@
+<!-- Backdrop -->
+<div class="fixed inset-0 bg-black/60 z-40 animate-fade-in" (click)="onClose()"></div>
+
+<!-- Panel -->
+<div class="fixed inset-x-4 bottom-4 sm:inset-auto sm:right-4 sm:bottom-4 border-2 bg-black/90 backdrop-blur-lg p-4 w-full max-w-sm h-[70vh] flex flex-col z-50 animate-slide-up font-mono"
+  [class]="'border-' + theme().primary + '-400/50'"
+  [class]="'text-' + theme().primary + '-400'">
+  
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-lg">[[ S.M.U.V.E ]]</h2>
+    <button (click)="onClose()" class="p-1 border hover:text-black" [class]="'border-' + theme().primary + '-400/50'" [class]="'hover:bg-' + theme().primary + '-400'">[X]</button>
+  </div>
+  
+  <div #chatHistory class="flex-grow overflow-y-auto pr-2 mb-4 space-y-3">
+    @for (message of messages(); track $index) {
+      <div [class.text-right]="message.role === 'user'">
+        <div class="inline-block p-2 rounded-lg max-w-[85%]" [class]="message.role === 'user' ? 'bg-' + theme().primary + '-700/50' : 'bg-' + theme().primary + '-900/50'">
+          <span>{{ message.content }}</span>
+          @if (message.urls) {
+            <div class="text-xs mt-2 border-t pt-1">
+              @for (url of message.urls; track url.uri) { <a [href]="url.uri" target="_blank" class="block underline">{{ url.title || url.uri }}</a> }
+            </div>
+          }
+        </div>
+      </div>
+    }
+    @if (isLoading()) { <div>Thinking...</div> }
+  </div>
+
+  <div class="flex gap-2 mb-2">
+     <button (click)="startAudioTranscription()" [disabled]="isTranscribing() || !isAiAvailable()" class="flex-grow p-2 border text-sm" [class]="'border-' + theme().primary + '-400/50'">
+      {{ isTranscribing() ? 'RECORDING...' : 'TRANSCRIBE AUDIO' }}
+     </button>
+  </div>
+
+  <form (submit)="sendMessage()" class="flex gap-2">
+    <button type="button" (click)="toggleVoiceInput()" class="p-2 border" [disabled]="!isAiAvailable()">🎤</button>
+    <input type="text" [(ngModel)]="userMessage" name="userMessage" class="flex-grow bg-black border px-2 py-1 text-sm" [disabled]="!isAiAvailable()">
+    <button type="submit" class="p-2 border" [disabled]="!isAiAvailable()">[SEND]</button>
+  </form>
+</div>

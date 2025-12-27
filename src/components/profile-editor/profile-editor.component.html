@@ -1,0 +1,101 @@
+
+<div class="w-full p-4 flex flex-col gap-4" [class]="'text-' + theme().neutral + '-200'" [class]="'border border-' + theme().accent + '-500/30'">
+  <h2 class="text-center text-lg" [class]="'text-' + theme().accent + '-400'">[ AURA ARTIST PROFILE ]</h2>
+  <p class="text-center text-sm opacity-70">Your profile helps S.M.U.V.E. give you personalized advice.</p>
+  
+  <div class="flex-grow overflow-y-auto pr-2 h-[60vh] space-y-6">
+    <!-- Basic Info -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label>[ Artist Name ]</label>
+        <input type="text" [value]="editableProfile().artistName" (input)="updateField('artistName', $event)" class="w-full p-2 bg-black border" [class]="'border-' + theme().accent + '-700/50'">
+      </div>
+      <div>
+        <label>[ Primary Genre ]</label>
+        <input type="text" [value]="editableProfile().primaryGenre" (input)="updateField('primaryGenre', $event)" class="w-full p-2 bg-black border" [class]="'border-' + theme().accent + '-700/50'">
+      </div>
+    </div>
+
+    <!-- Bio -->
+    <div>
+      <label>[ Bio / Journey ]</label>
+      <textarea [value]="editableProfile().bio" (input)="updateField('bio', $event)" rows="3" class="w-full p-2 bg-black border" [class]="'border-' + theme().accent + '-700/50'"></textarea>
+    </div>
+
+    <!-- Skills -->
+    <div>
+      <label>[ Your Skills ]</label>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 p-2 border" [class]="'border-' + theme().accent + '-500/20'">
+        @for(skill of ALL_SKILLS; track skill) {
+          <label class="flex items-center gap-2">
+            <input type="checkbox" [checked]="editableProfile().skills.includes(skill)" (change)="onSkillChange(skill, $event)">
+            <span>{{ skill }}</span>
+          </label>
+        }
+      </div>
+    </div>
+
+    <!-- Goals -->
+    <div>
+      <label>[ Career Goals ]</label>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 p-2 border" [class]="'border-' + theme().accent + '-500/20'">
+        @for(goal of ALL_GOALS; track goal) {
+          <label class="flex items-center gap-2">
+            <input type="checkbox" [checked]="editableProfile().careerGoals.includes(goal)" (change)="onGoalChange(goal, $event)">
+            <span>{{ goal }}</span>
+          </label>
+        }
+      </div>
+    </div>
+
+    <!-- Focus & Influences -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+       <div>
+        <label>[ Current Focus (e.g., finishing an EP) ]</label>
+        <input type="text" [value]="editableProfile().currentFocus" (input)="updateField('currentFocus', $event)" class="w-full p-2 bg-black border" [class]="'border-' + theme().accent + '-700/50'">
+      </div>
+       <div>
+        <label>[ Key Influences ]</label>
+        <input type="text" [value]="editableProfile().influences" (input)="updateField('influences', $event)" class="w-full p-2 bg-black border" [class]="'border-' + theme().accent + '-700/50'">
+      </div>
+    </div>
+    
+    <!-- Social Links -->
+    <div>
+      <label>[ Social Media Links ]</label>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2 border" [class]="'border-' + theme().accent + '-500/20'">
+        @for(platform of socialPlatforms; track platform) {
+          <input type="text" [placeholder]="platform + ' URL'" [value]="editableProfile().links[platform] || ''" (input)="updateLinkField(platform, $event)" class="w-full p-2 bg-black border" [class]="'border-' + theme().accent + '-700/50'">
+        }
+      </div>
+    </div>
+
+    <!-- Music Links -->
+    <div>
+      <label>[ Music Platform Links ]</label>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2 border" [class]="'border-' + theme().accent + '-500/20'">
+        @for(platform of musicPlatforms; track platform) {
+          <input type="text" [placeholder]="platform + ' URL'" [value]="editableProfile().links[platform] || ''" (input)="updateLinkField(platform, $event)" class="w-full p-2 bg-black border" [class]="'border-' + theme().accent + '-700/50'">
+        }
+      </div>
+    </div>
+
+    <!-- PRO Links -->
+    <div>
+      <label>[ PRO Links ]</label>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-2 border" [class]="'border-' + theme().accent + '-500/20'">
+        @for(platform of proPlatforms; track platform) {
+          <input type="text" [placeholder]="platform + ' Profile URL'" [value]="editableProfile().links[platform] || ''" (input)="updateLinkField(platform, $event)" class="w-full p-2 bg-black border" [class]="'border-' + theme().accent + '-700/50'">
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="pt-4 border-t" [class]="'border-' + theme().accent + '-500/20'">
+    <button (click)="saveProfile()" class="p-2 border w-full text-lg hover:text-black disabled:opacity-50 disabled:cursor-not-allowed" [class]="'border-' + theme().accent + '-500/50'" [class]="'hover:bg-' + theme().accent + '-400'" [disabled]="saveStatus() !== 'idle'">
+      @if(saveStatus() === 'idle') { <span>[ SAVE PROFILE ]</span> }
+      @if(saveStatus() === 'saving') { <span>[ SAVING... ]</span> }
+      @if(saveStatus() === 'saved') { <span>[ PROFILE SAVED! ]</span> }
+    </button>
+  </div>
+</div>

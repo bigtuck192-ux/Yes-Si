@@ -1,0 +1,2 @@
+
+input[type=range].vertical-slider { writing-mode: bt-lr; -webkit-appearance: slider-vertical; width: 8px; height: 120px; }

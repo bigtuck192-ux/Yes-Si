@@ -1,0 +1,4 @@
+.piano-roll-grid { grid-template-columns: 80px repeat(16, 1fr); grid-auto-rows: 24px; width: max-content; }
+div::-webkit-scrollbar { height: 8px; }
+div::-webkit-scrollbar-track { background: var(--color-neutral-800); }
+div::-webkit-scrollbar-thumb { background: var(--color-primary-400); border-radius: 4px; border: 1px solid var(--color-primary-700); }

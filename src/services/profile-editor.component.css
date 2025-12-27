@@ -1,0 +1,7 @@
+:host { display: contents; }
+
+input[type="checkbox"] {
+    accent-color: currentColor;
+    width: 1rem;
+    height: 1rem;
+}

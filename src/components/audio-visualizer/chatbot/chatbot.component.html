@@ -1,0 +1,92 @@
+<!-- Backdrop -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 animate-fade-in" (click)="onClose()"></div>
+
+<!-- Panel -->
+<div class="fixed inset-x-4 bottom-4 sm:inset-auto sm:right-6 sm:bottom-6 border border-white/10 bg-slate-900/90 backdrop-blur-2xl p-0 w-full max-w-sm h-[75vh] flex flex-col z-50 animate-slide-up font-sans rounded-2xl shadow-2xl overflow-hidden"
+  [class]="'shadow-' + theme().primary + '-500/20'">
+  
+  <!-- Header -->
+  <div class="flex justify-between items-center p-4 border-b border-white/5 bg-black/20">
+    <div class="flex items-center gap-2">
+        <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+        <h2 class="text-sm font-bold tracking-wider text-white">S.M.U.V.E. AI</h2>
+    </div>
+    <div class="flex gap-2">
+       <button (click)="toggleConfig()" class="text-xs text-gray-400 hover:text-white transition-colors" title="Settings"><i class="fa-solid fa-gear"></i></button>
+       <button (click)="onClose()" class="text-xs text-gray-400 hover:text-white transition-colors ml-2"><i class="fa-solid fa-xmark fa-lg"></i></button>
+    </div>
+  </div>
+
+  <!-- Config Panel (Collapsible) -->
+  @if (showConfig()) {
+      <div class="bg-black/40 p-4 border-b border-white/5 space-y-4 animate-fade-in">
+          <div>
+              <div class="flex justify-between text-xs text-gray-400 mb-1">
+                  <span>Thinking Budget (Token)</span>
+                  <span class="text-blue-400">{{ thinkingBudget() }}</span>
+              </div>
+              <input type="range" min="0" max="16000" step="1024" [value]="thinkingBudget()" (input)="updateThinkingBudget($event)" class="w-full h-1 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-blue-500">
+              <p class="text-[10px] text-gray-500 mt-1">Higher budget = Deeper reasoning (Gemini 3.0 Pro)</p>
+          </div>
+          <div class="flex items-center justify-between">
+              <span class="text-xs text-gray-300">Google Search Grounding</span>
+              <button (click)="toggleSearch()" class="w-8 h-4 rounded-full transition-colors relative" [class]="useSearch() ? 'bg-green-500' : 'bg-gray-700'">
+                  <div class="w-2 h-2 bg-white rounded-full absolute top-1 transition-all" [class]="useSearch() ? 'left-5' : 'left-1'"></div>
+              </button>
+          </div>
+      </div>
+  }
+  
+  <!-- Chat History -->
+  <div #chatHistory class="flex-grow overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-transparent to-black/20">
+    @for (message of messages(); track $index) {
+      <div [class]="message.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
+        <div class="max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed shadow-sm" 
+             [class]="message.role === 'user' ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white/10 text-gray-200 rounded-tl-none border border-white/5'">
+          <div [innerHTML]="message.content"></div> <!-- Note: Ideally sanitize this -->
+          
+          @if (message.urls && message.urls.length > 0) {
+            <div class="mt-3 pt-2 border-t border-white/10 flex flex-wrap gap-2">
+              @for (url of message.urls; track url.uri) { 
+                  <a [href]="url.uri" target="_blank" class="flex items-center gap-1 px-2 py-1 rounded bg-black/20 hover:bg-black/40 text-[10px] text-blue-300 transition-colors truncate max-w-full">
+                      <i class="fa-solid fa-link"></i> {{ url.title || 'Source' }}
+                  </a> 
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+    @if (isLoading()) { 
+        <div class="flex justify-start">
+            <div class="bg-white/5 rounded-2xl rounded-tl-none p-3 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
+                <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0.1s]"></span>
+                <span class="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+            </div>
+        </div>
+    }
+  </div>
+
+  <!-- Audio Transcription Button -->
+  <div class="px-4 py-2 border-t border-white/5 bg-black/20">
+     <button (click)="startAudioTranscription()" [disabled]="isTranscribing() || !isAiAvailable()" 
+             class="w-full py-2 rounded-lg border border-dashed border-white/20 text-xs font-mono text-gray-400 hover:text-white hover:border-white/40 transition-all flex items-center justify-center gap-2">
+       @if (isTranscribing()) { <span class="animate-pulse text-red-400">● RECORDING AUDIO...</span> } 
+       @else { <i class="fa-solid fa-microphone-lines"></i> TRANSCRIBE AUDIO FILE }
+     </button>
+  </div>
+
+  <!-- Input Area -->
+  <form (submit)="sendMessage()" class="p-3 bg-black/40 border-t border-white/5 flex gap-2 items-center">
+    <button type="button" (click)="toggleVoiceInput()" class="p-2 text-gray-400 hover:text-white transition-colors rounded-full hover:bg-white/10" [class.text-red-500]="isVoiceInputActive()" [disabled]="!isAiAvailable()">
+        <i class="fa-solid fa-microphone"></i>
+    </button>
+    <input type="text" [(ngModel)]="userMessage" name="userMessage" placeholder="Ask S.M.U.V.E..." 
+           class="flex-grow bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:bg-white/10 transition-all" 
+           [disabled]="!isAiAvailable()">
+    <button type="submit" class="p-2 w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20 flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed" [disabled]="!isAiAvailable() || !userMessage()">
+        <i class="fa-solid fa-paper-plane text-xs"></i>
+    </button>
+  </form>
+</div>
